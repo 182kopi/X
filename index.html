@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>182kopi - Retail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#fefce8] min-h-screen text-sm">
+<header class="bg-[#a16207] text-white p-4 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto flex justify-between"><div><h1 class="font-bold">182kopi - Retail</h1><p class="text-xs opacity-80">Nota Titipan & Surat Tagihan • P-IRT 2153274010234-29</p></div><div class="bg-white text-[#a16207] px-3 py-1 rounded-full font-bold text-xs" id="total-piutang">Piutang: Rp 0</div></div>
+</header>
+
+<div class="max-w-7xl mx-auto p-3">
+  <div class="flex gap-2 overflow-x-auto mb-3">
+    <button onclick="tab('toko')" id="b-toko" class="tab bg-[#a16207] text-white px-4 py-2 rounded-full font-bold">TOKO</button>
+    <button onclick="tab('produk')" id="b-produk" class="tab bg-white border px-4 py-2 rounded-full font-bold">PRODUK</button>
+    <button onclick="tab('titip')" id="b-titip" class="tab bg-white border px-4 py-2 rounded-full font-bold">TITIP</button>
+    <button onclick="tab('nota')" id="b-nota" class="tab bg-white border px-4 py-2 rounded-full font-bold">CETAK NOTA TITIP</button>
+    <button onclick="tab('terjual')" id="b-terjual" class="tab bg-white border px-4 py-2 rounded-full font-bold">TERJUAL</button>
+    <button onclick="tab('retur')" id="b-retur" class="tab bg-white border px-4 py-2 rounded-full font-bold">RETURN</button>
+    <button onclick="tab('tagih')" id="b-tagih" class="tab bg-white border px-4 py-2 rounded-full font-bold">CETAK TAGIHAN</button>
+    <button onclick="tab('laporan')" id="b-laporan" class="tab bg-white border px-4 py-2 rounded-full font-bold">LAPORAN</button>
+  </div>
+
+  <div id="t-toko"><div class="bg-white p-4 rounded-2xl shadow mb-3"><div class="grid grid-cols-3 gap-2"><input id="toko-nama" placeholder="Nama Toko" class="border p-2 rounded-lg"><input id="toko-alamat" placeholder="Alamat Lengkap" class="border p-2 rounded-lg col-span-2"><input id="toko-pemilik" placeholder="Pemilik" class="border p-2 rounded-lg"><input id="toko-wa" placeholder="WA" class="border p-2 rounded-lg"><input id="toko-area" placeholder="Area" class="border p-2 rounded-lg"></div><button onclick="saveToko()" class="mt-3 bg-[#a16207] text-white px-5 py-2 rounded-lg font-bold">Simpan Toko</button></div><div id="list-toko" class="grid md:grid-cols-2 gap-2"></div></div>
+
+  <div id="t-produk" class="hidden"><div class="bg-white p-4 rounded-2xl shadow mb-3"><div class="grid grid-cols-3 gap-2"><input id="prod-nama" placeholder="Nama Produk" class="border p-2 rounded-lg"><input id="prod-kode" placeholder="Kode" class="border p-2 rounded-lg"><input id="prod-modal" type="number" placeholder="Modal" class="border p-2 rounded-lg"><input id="prod-titip" type="number" placeholder="Harga Titip" class="border p-2 rounded-lg"><input id="prod-jual" type="number" placeholder="Harga Jual Toko" class="border p-2 rounded-lg"><input id="prod-stok" type="number" placeholder="Stok Gudang" class="border p-2 rounded-lg"></div><button onclick="saveProduk()" class="mt-3 bg-[#a16207] text-white px-5 py-2 rounded-lg font-bold">Simpan Produk</button></div><div class="bg-white rounded-2xl shadow overflow-x-auto"><table class="w-full text-xs"><thead class="bg-yellow-50"><tr><th class="p-2 text-left">Produk</th><th class="p-2">Modal</th><th class="p-2">Titip</th><th class="p-2">Stok Gudang</th><th class="p-2">Aksi</th></tr></thead><tbody id="table-produk"></tbody></table></div></div>
+
+  <div id="t-titip" class="hidden"><div class="bg-white p-4 rounded-2xl shadow mb-3"><div class="grid grid-cols-3 gap-2"><select id="titip-toko" class="border p-2 rounded-lg"></select><select id="titip-produk" class="border p-2 rounded-lg"></select><input id="titip-qty" type="number" placeholder="Qty" class="border p-2 rounded-lg"><input id="titip-tgl" type="date" class="border p-2 rounded-lg"></div><button onclick="saveTitip()" class="mt-3 bg-green-700 text-white px-5 py-2 rounded-lg font-bold">Simpan Titipan + Siap Cetak Nota</button></div><div class="bg-white rounded-2xl shadow"><table class="w-full text-xs"><thead class="bg-green-50"><tr><th class="p-2">Tgl</th><th class="p-2">Toko</th><th class="p-2">Produk</th><th class="p-2">Qty</th><th class="p-2">Nilai</th><th class="p-2">Cetak</th><th class="p-2">Aksi</th></tr></thead><tbody id="table-titip"></tbody></table></div></div>
+
+  <!-- CETAK NOTA TITIP -->
+  <div id="t-nota" class="hidden">
+    <div class="bg-white p-4 rounded-2xl shadow mb-3 border-l-4 border-green-600">
+      <h3 class="font-bold text-green-700">🧾 CETAK NOTA TITIPAN (Bukti Titip ke Toko)</h3>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <select id="nota-toko" class="border p-2 rounded-lg"></select>
+        <input id="nota-tgl" type="date" class="border p-2 rounded-lg">
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="buatNota()" class="bg-green-700 text-white px-5 py-3 rounded-xl font-bold flex-1">BUAT NOTA TITIPAN</button>
+        <button onclick="downloadNota()" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold">DOWNLOAD GAMBAR NOTA</button>
+      </div>
+      <p class="text-xs mt-2">Nota berisi: Daftar produk yang dititip hari ini + total nilai + tanda tangan. Kasih ke pemilik toko.</p>
+    </div>
+    <div id="preview-nota" class="bg-white p-6 rounded-2xl shadow border-2 border-dashed min-h-[400px]"></div>
+  </div>
+
+  <div id="t-terjual" class="hidden"><div class="bg-white p-4 rounded-2xl shadow mb-3"><div class="grid grid-cols-3 gap-2"><select id="jual-toko" class="border p-2 rounded-lg"></select><select id="jual-produk" class="border p-2 rounded-lg"></select><input id="jual-qty" type="number" placeholder="Qty Terjual" class="border p-2 rounded-lg"><input id="jual-tgl" type="date" class="border p-2 rounded-lg"></div><button onclick="saveJual()" class="mt-3 bg-blue-700 text-white px-5 py-2 rounded-lg font-bold">Simpan Terjual</button></div><div class="bg-white rounded-2xl shadow"><table class="w-full text-xs"><thead class="bg-blue-50"><tr><th class="p-2">Tgl</th><th class="p-2">Toko</th><th class="p-2">Produk</th><th class="p-2">Qty</th><th class="p-2">Piutang</th><th class="p-2">Aksi</th></tr></thead><tbody id="table-jual"></tbody></table></div></div>
+
+  <div id="t-retur" class="hidden"><div class="bg-white p-4 rounded-2xl shadow mb-3 border-l-4 border-red-500"><div class="grid grid-cols-3 gap-2"><select id="retur-toko" class="border p-2 rounded-lg"></select><select id="retur-produk" class="border p-2 rounded-lg"></select><input id="retur-qty" type="number" placeholder="Qty" class="border p-2 rounded-lg"><select id="retur-alasan" class="border p-2 rounded-lg"><option>Tidak Laku</option><option>Basi</option><option>Rusak</option></select><input id="retur-tgl" type="date" class="border p-2 rounded-lg"></div><button onclick="saveRetur()" class="mt-3 bg-red-600 text-white px-5 py-2 rounded-lg font-bold">Simpan Return</button></div><div class="bg-white rounded-2xl shadow"><table class="w-full text-xs"><thead class="bg-red-50"><tr><th class="p-2">Tgl</th><th class="p-2">Toko</th><th class="p-2">Produk</th><th class="p-2">Qty</th><th class="p-2">Alasan</th><th class="p-2">Aksi</th></tr></thead><tbody id="table-retur"></tbody></table></div></div>
+
+  <!-- CETAK TAGIHAN -->
+  <div id="t-tagih" class="hidden">
+    <div class="bg-white p-4 rounded-2xl shadow mb-3 border-l-4 border-orange-500">
+      <h3 class="font-bold text-orange-700">💳 CETAK SURAT TAGIHAN (Untuk Nagih Toko)</h3>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <select id="tagih-toko-select" class="border p-2 rounded-lg"></select>
+        <input id="tagih-tgl-select" type="date" class="border p-2 rounded-lg">
+      </div>
+      <div class="flex gap-2 mt-3">
+        <button onclick="buatTagihan()" class="bg-orange-600 text-white px-5 py-3 rounded-xl font-bold flex-1">BUAT SURAT TAGIHAN</button>
+        <button onclick="downloadTagihan()" class="bg-slate-900 text-white px-5 py-3 rounded-xl font-bold">DOWNLOAD GAMBAR TAGIHAN</button>
+        <button onclick="kirimWATagihan()" class="bg-green-600 text-white px-5 py-3 rounded-xl font-bold">KIRIM WA TAGIHAN</button>
+      </div>
+      <p class="text-xs mt-2">Surat tagihan berisi: Rincian produk terjual belum dibayar + total piutang + rekening pembayaran.</p>
+    </div>
+    <div id="preview-tagihan" class="bg-white p-6 rounded-2xl shadow border-2 border-dashed min-h-[500px]"></div>
+    <div class="bg-white p-4 rounded-2xl shadow mt-3">
+      <h4 class="font-bold text-xs mb-2">Riwayat Pembayaran</h4>
+      <div class="grid grid-cols-3 gap-2 mb-2"><select id="bayar-toko" class="border p-2 rounded-lg"></select><input id="bayar-jumlah" type="number" placeholder="Jumlah Bayar" class="border p-2 rounded-lg"><input id="bayar-tgl" type="date" class="border p-2 rounded-lg"></div>
+      <button onclick="saveBayar()" class="bg-green-700 text-white px-4 py-2 rounded-lg font-bold text-xs">Simpan Pembayaran</button>
+      <div id="table-bayar" class="mt-3 text-xs"></div>
+    </div>
+  </div>
+
+  <div id="t-laporan" class="hidden"><div class="grid grid-cols-3 gap-2 mb-3"><div class="bg-white p-3 rounded-xl shadow"><p class="text-xs">Piutang Toko</p><p id="l-piutang" class="font-bold text-orange-600">Rp 0</p></div><div class="bg-white p-3 rounded-xl shadow"><p class="text-xs">Laba Kamu</p><p id="l-laba" class="font-bold text-green-700">Rp 0</p></div><div class="bg-white p-3 rounded-xl shadow"><p class="text-xs">Return Rugi</p><p id="l-rugi" class="font-bold text-red-600">Rp 0</p></div></div><div class="grid md:grid-cols-2 gap-3"><div class="bg-white p-4 rounded-2xl shadow"><h4 class="font-bold text-xs">Piutang per Toko</h4><div id="piutang-toko" class="space-y-1 mt-2"></div></div><div class="bg-white p-4 rounded-2xl shadow"><h4 class="font-bold text-xs">Top Toko Paling Laku</h4><div id="top-toko" class="space-y-1 mt-2"></div></div></div></div>
+</div>
+
+<canvas id="canvas-nota" style="display:none"></canvas>
+
+<script>
+let toko=JSON.parse(localStorage.getItem('penitip_toko')||'[{"id":1,"nama":"Toko Berkah Panam","alamat":"Jl HR Soebrantas KM12 Panam, Pekanbaru","pemilik":"Pak Budi","wa":"081234567890","area":"Panam"}]');
+let produk=JSON.parse(localStorage.getItem('penitip_produk')||'[{"id":1,"nama":"Keripik Pisang 100gr","kode":"KPO-001","modal":5000,"titip":8000,"jual":12000,"stokGudang":100}]');
+let titip=JSON.parse(localStorage.getItem('penitip_titip')||'[]');let terjual=JSON.parse(localStorage.getItem('penitip_jual')||'[]');let retur=JSON.parse(localStorage.getItem('penitip_retur')||'[]');let bayar=JSON.parse(localStorage.getItem('penitip_bayar')||'[]');
+
+function saveAll(){localStorage.setItem('penitip_toko',JSON.stringify(toko));localStorage.setItem('penitip_produk',JSON.stringify(produk));localStorage.setItem('penitip_titip',JSON.stringify(titip));localStorage.setItem('penitip_jual',JSON.stringify(terjual));localStorage.setItem('penitip_retur',JSON.stringify(retur));localStorage.setItem('penitip_bayar',JSON.stringify(bayar));}
+function tab(n){document.querySelectorAll('[id^=t-]').forEach(e=>e.classList.add('hidden'));document.getElementById('t-'+n).classList.remove('hidden');document.querySelectorAll('.tab').forEach(e=>e.className='tab bg-white border px-4 py-2 rounded-full font-bold');document.getElementById('b-'+n).className='tab bg-[#a16207] text-white px-4 py-2 rounded-full font-bold';render();}
+function render(){
+  document.getElementById('list-toko').innerHTML=toko.map(t=>`<div class="bg-white p-3 rounded-xl shadow"><b>${t.nama}</b><p class="text-xs">${t.alamat}</p><p class="text-xs">Pemilik: ${t.pemilik} | WA: ${t.wa} | ${t.area}</p><button onclick="delToko(${t.id})" class="mt-1 text-xs bg-red-100 px-2 py-1 rounded">Hapus</button></div>`).join('');
+  document.getElementById('table-produk').innerHTML=produk.map(p=>`<tr class="border-t"><td class="p-2"><b>${p.nama}</b><br><span class="text-[10px]">${p.kode}</span></td><td class="p-2">Rp ${p.modal.toLocaleString()}</td><td class="p-2">Rp ${p.titip.toLocaleString()}</td><td class="p-2">${p.stokGudang}</td><td class="p-2"><button onclick="delProduk(${p.id})" class="bg-red-100 px-2 rounded text-xs">X</button></td></tr>`).join('');
+  let optToko=toko.map(t=>`<option value="${t.id}">${t.nama} - ${t.area}</option>`).join('');let optProd=produk.map(p=>`<option value="${p.id}">${p.nama} (Gudang ${p.stokGudang})</option>`).join('');
+  ['titip-toko','jual-toko','retur-toko','nota-toko','tagih-toko-select','bayar-toko'].forEach(id=>{let el=document.getElementById(id);if(el) el.innerHTML=optToko;});
+  ['titip-produk','jual-produk','retur-produk'].forEach(id=>{let el=document.getElementById(id);if(el) el.innerHTML=optProd;});
+  document.getElementById('table-titip').innerHTML=titip.map(m=>{let tk=toko.find(x=>x.id==m.tokoId);let pr=produk.find(x=>x.id==m.produkId);return `<tr class="border-t"><td class="p-2">${m.tgl}</td><td class="p-2">${tk?.nama||'-'}</td><td class="p-2">${pr?.nama||'-'}</td><td class="p-2">${m.qty}</td><td class="p-2">Rp ${(m.qty*(pr?.titip||0)).toLocaleString()}</td><td class="p-2"><button onclick="cetakNotaToko(${m.tokoId},'${m.tgl}')" class="bg-green-100 px-2 rounded text-xs">Nota</button></td><td class="p-2"><button onclick="delTitip(${m.id})" class="bg-red-100 px-2 rounded">X</button></td></tr>`}).join('');
+  document.getElementById('table-jual').innerHTML=terjual.map(j=>{let tk=toko.find(x=>x.id==j.tokoId);let pr=produk.find(x=>x.id==j.produkId);return `<tr class="border-t"><td class="p-2">${j.tgl}</td><td class="p-2">${tk?.nama||'-'}</td><td class="p-2">${pr?.nama||'-'}</td><td class="p-2">${j.qty}</td><td class="p-2">Rp ${j.piutang.toLocaleString()}</td><td class="p-2"><button onclick="delJual(${j.id})" class="bg-red-100 px-2 rounded">X</button></td></tr>`}).join('');
+  document.getElementById('table-retur').innerHTML=retur.map(r=>{let tk=toko.find(x=>x.id==r.tokoId);let pr=produk.find(x=>x.id==r.produkId);return `<tr class="border-t"><td class="p-2">${r.tgl}</td><td class="p-2">${tk?.nama||'-'}</td><td class="p-2">${pr?.nama||'-'}</td><td class="p-2">${r.qty}</td><td class="p-2">${r.alasan}</td><td class="p-2"><button onclick="delRetur(${r.id})" class="bg-red-100 px-2 rounded">X</button></td></tr>`}).join('');
+  document.getElementById('table-bayar').innerHTML=bayar.map(b=>{let tk=toko.find(x=>x.id==b.tokoId);return `<div class="flex justify-between border-b py-1"><span>${b.tgl} - ${tk?.nama||'-'} - Rp ${b.jumlah.toLocaleString()}</span><button onclick="delBayar(${b.id})" class="text-red-500">X</button></div>`}).join('');
+  let totalPiutang=toko.reduce((a,t)=>a+calcPiutang(t.id),0);let totalLaba=terjual.reduce((a,b)=>a+b.laba,0);
+  document.getElementById('l-piutang').innerText='Rp '+totalPiutang.toLocaleString();document.getElementById('total-piutang').innerText='Piutang: Rp '+totalPiutang.toLocaleString();document.getElementById('l-laba').innerText='Rp '+totalLaba.toLocaleString();document.getElementById('l-rugi').innerText='Rp '+retur.reduce((a,b)=>{let pr=produk.find(x=>x.id==b.produkId);return a+b.qty*(pr?.modal||0)},0).toLocaleString();
+  document.getElementById('piutang-toko').innerHTML=toko.map(t=>{let p=calcPiutang(t.id);return `<div class="flex justify-between text-xs border-b py-1"><span>${t.nama}</span><span class="${p>0?'text-orange-600 font-bold':''}">Rp ${p.toLocaleString()}</span></div>`}).join('')||'Kosong';
+  let topToko={};terjual.forEach(j=>{topToko[j.tokoId]=(topToko[j.tokoId]||0)+j.qty;});let sorted=Object.entries(topToko).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('top-toko').innerHTML=sorted.map(([tid,q])=>{let tk=toko.find(x=>x.id==parseInt(tid));return `<div class="flex justify-between text-xs border-b py-1"><span>${tk?.nama||'-'}</span><span>${q} pcs</span></div>`}).join('')||'Belum ada';
+}
+
+function calcPiutang(tokoId){let piutang=terjual.filter(j=>j.tokoId==tokoId).reduce((a,b)=>a+b.piutang,0);let bay=bayar.filter(b=>b.tokoId==tokoId).reduce((a,b)=>a+b.jumlah,0);return piutang-bay;}
+function calcStokDiToko(tokoId,produkId){let ms=titip.filter(m=>m.tokoId==tokoId&&m.produkId==produkId).reduce((a,b)=>a+b.qty,0);let jl=terjual.filter(j=>j.tokoId==tokoId&&j.produkId==produkId).reduce((a,b)=>a+b.qty,0);let rt=retur.filter(r=>r.tokoId==tokoId&&r.produkId==produkId).reduce((a,b)=>a+b.qty,0);return ms-jl-rt;}
+function saveToko(){let nama=document.getElementById('toko-nama').value;let alamat=document.getElementById('toko-alamat').value;if(!nama||!alamat) return alert('Nama & alamat wajib');toko.push({id:Date.now(),nama,alamat,pemilik:document.getElementById('toko-pemilik').value,wa:document.getElementById('toko-wa').value,area:document.getElementById('toko-area').value||'Pekanbaru'});saveAll();render();}
+function delToko(id){toko=toko.filter(x=>x.id!=id);saveAll();render();}
+function saveProduk(){let nama=document.getElementById('prod-nama').value;if(!nama) return alert('Nama wajib');produk.push({id:Date.now(),nama,kode:document.getElementById('prod-kode').value||'PRD'+Date.now(),modal:parseInt(document.getElementById('prod-modal').value)||0,titip:parseInt(document.getElementById('prod-titip').value)||0,jual:parseInt(document.getElementById('prod-jual').value)||0,stokGudang:parseInt(document.getElementById('prod-stok').value)||0});saveAll();render();}
+function delProduk(id){produk=produk.filter(x=>x.id!=id);saveAll();render();}
+function saveTitip(){let tokoId=parseInt(document.getElementById('titip-toko').value);let produkId=parseInt(document.getElementById('titip-produk').value);let qty=parseInt(document.getElementById('titip-qty').value);let tgl=document.getElementById('titip-tgl').value||new Date().toISOString().split('T')[0];if(!qty) return alert('Qty wajib');let p=produk.find(x=>x.id==produkId);if(p.stokGudang<qty) return alert('Stok gudang hanya '+p.stokGudang);titip.unshift({id:Date.now(),tokoId,produkId,qty,tgl});p.stokGudang-=qty;saveAll();render();alert('Titipan disimpan! Sekarang cetak Nota di tab CETAK NOTA TITIP');}
+function delTitip(id){let m=titip.find(x=>x.id==id);let p=produk.find(x=>x.id==m?.produkId);if(p) p.stokGudang+=m.qty;titip=titip.filter(x=>x.id!=id);saveAll();render();}
+function saveJual(){let tokoId=parseInt(document.getElementById('jual-toko').value);let produkId=parseInt(document.getElementById('jual-produk').value);let qty=parseInt(document.getElementById('jual-qty').value);let tgl=document.getElementById('jual-tgl').value||new Date().toISOString().split('T')[0];if(!qty) return alert('Qty wajib');let stok=calcStokDiToko(tokoId,produkId);if(stok<qty) return alert('Stok di toko hanya '+stok);let p=produk.find(x=>x.id==produkId);terjual.unshift({id:Date.now(),tokoId,produkId,qty,tgl,piutang:qty*p.titip,laba:qty*(p.titip-p.modal)});saveAll();render();}
+function delJual(id){terjual=terjual.filter(x=>x.id!=id);saveAll();render();}
+function saveRetur(){let tokoId=parseInt(document.getElementById('retur-toko').value);let produkId=parseInt(document.getElementById('retur-produk').value);let qty=parseInt(document.getElementById('retur-qty').value);let tgl=document.getElementById('retur-tgl').value||new Date().toISOString().split('T')[0];if(!qty) return alert('Qty wajib');if(calcStokDiToko(tokoId,produkId)<qty) return alert('Stok di toko tidak cukup');retur.unshift({id:Date.now(),tokoId,produkId,qty,tgl,alasan:document.getElementById('retur-alasan').value});saveAll();render();}
+function delRetur(id){retur=retur.filter(x=>x.id!=id);saveAll();render();}
+function saveBayar(){let tokoId=parseInt(document.getElementById('bayar-toko').value);let jumlah=parseInt(document.getElementById('bayar-jumlah').value);let tgl=document.getElementById('bayar-tgl').value||new Date().toISOString().split('T')[0];if(!jumlah) return alert('Jumlah wajib');bayar.unshift({id:Date.now(),tokoId,jumlah,tgl});saveAll();render();}
+function delBayar(id){bayar=bayar.filter(x=>x.id!=id);saveAll();render();}
+
+function cetakNotaToko(tokoId,tgl){document.getElementById('nota-toko').value=tokoId;document.getElementById('nota-tgl').value=tgl;tab('nota');buatNota();}
+
+function buatNota(){
+  let tokoId=parseInt(document.getElementById('nota-toko').value);let tgl=document.getElementById('nota-tgl').value||new Date().toISOString().split('T')[0];
+  let tk=toko.find(x=>x.id==tokoId);if(!tk) return alert('Pilih toko');
+  let list=titip.filter(m=>m.tokoId==tokoId&&m.tgl==tgl);
+  if(list.length==0) return alert('Tidak ada titipan ke '+tk.nama+' pada tanggal '+tgl);
+  let totalQty=list.reduce((a,b)=>a+b.qty,0);let totalNilai=list.reduce((a,b)=>{let pr=produk.find(x=>x.id==b.produkId);return a+b.qty*(pr?.titip||0)},0);
+  let html=`
+    <div style="font-family:monospace;border:2px solid black;padding:20px;max-width:600px;margin:auto;background:white">
+      <center><b>NOTA TITIPAN PRODUK</b><br>No: NT-${Date.now().toString().slice(-6)}<br>${tgl}<br><br></center>
+      <b>DARI (Penitip):</b><br>182kopi - Pekanbaru<br>WA 082366214931<br><br>
+      <b>KE (Toko):</b><br>${tk.nama}<br>${tk.alamat}<br>Pemilik: ${tk.pemilik} | WA: ${tk.wa}<br><br>
+      <table border="1" style="width:100%;border-collapse:collapse;font-size:12px">
+        <tr><th>No</th><th>Produk</th><th>Qty</th><th>Harga Titip</th><th>Subtotal</th></tr>
+        ${list.map((m,i)=>{let pr=produk.find(x=>x.id==m.produkId);return `<tr><td>${i+1}</td><td>${pr?.nama||'-'}<br><small>${pr?.kode||''}</small></td><td>${m.qty}</td><td>Rp ${pr?.titip.toLocaleString()}</td><td>Rp ${(m.qty*(pr?.titip||0)).toLocaleString()}</td></tr>`}).join('')}
+        <tr><td colspan="2"><b>TOTAL</b></td><td><b>${totalQty}</b></td><td></td><td><b>Rp ${totalNilai.toLocaleString()}</b></td></tr>
+      </table>
+      <br><small>Catatan: Barang titip, dibayar setelah laku. Return jika tidak laku / basi max 14 hari.<br>Harga jual di toko: Sesuai label. Toko ambil laba dari selisih harga jual - harga titip.</small><br><br>
+      <div style="display:flex;justify-content:space-between;margin-top:30px">
+        <div><center>Penitip<br><br><br><br> (___________)${tk.pemilik}</center></div>
+        <div><center>Penerima Toko<br><br><br><br> (___________)<br>${tk.pemilik}</center></div>
+      </div>
+      <br><center><small>P-IRT 2153274010234-29 | Produk Asli Pekanbaru</small></center>
+    </div>`;
+  document.getElementById('preview-nota').innerHTML=html;
+}
+
+function downloadNota(){
+  let preview=document.getElementById('preview-nota');if(!preview.innerHTML) return alert('Buat Nota dulu!');
+  let canvas=document.getElementById('canvas-nota');let ctx=canvas.getContext('2d');
+  canvas.width=800;canvas.height=1100;ctx.fillStyle='white';ctx.fillRect(0,0,800,1100);
+  // Simple image render - convert html to canvas manually
+  let tk=toko.find(x=>x.id==parseInt(document.getElementById('nota-toko').value));let tgl=document.getElementById('nota-tgl').value;
+  let list=titip.filter(m=>m.tokoId==tk.id&&m.tgl==tgl);
+  ctx.fillStyle='black';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('NOTA TITIPAN PRODUK',400,40);
+  ctx.font='12px monospace';ctx.fillText('No: NT-'+Date.now().toString().slice(-6)+' | Tgl: '+tgl,400,60);
+  ctx.textAlign='left';ctx.fillText('KE: '+tk.nama,20,90);ctx.fillText(tk.alamat.substring(0,60),20,110);
+  let y=140;ctx.fillText('No | Produk | Qty | Harga Titip | Subtotal',20,y);y+=20;
+  list.forEach((m,i)=>{let pr=produk.find(x=>x.id==m.produkId);ctx.fillText(`${i+1}. ${pr.nama.substring(0,25)} | ${m.qty} | Rp ${pr.titip.toLocaleString()} | Rp ${(m.qty*pr.titip).toLocaleString()}`,20,y);y+=20;});
+  y+=20;ctx.font='bold 14px monospace';ctx.fillText('TOTAL QTY: '+list.reduce((a,b)=>a+b.qty,0)+' | TOTAL NILAI: Rp '+list.reduce((a,b)=>{let pr=produk.find(x=>x.id==b.produkId);return a+b.qty*pr.titip},0).toLocaleString(),20,y);
+  let img=canvas.toDataURL('image/png');let a=document.createElement('a');a.href=img;a.download='Nota-Titip-'+tk.nama+'-'+tgl+'.png';a.click();
+  alert('Gambar Nota terdownload! Buka Galeri → Print / Kirim WA ke toko');
+}
+
+function buatTagihan(){
+  let tokoId=parseInt(document.getElementById('tagih-toko-select').value);let tgl=document.getElementById('tagih-tgl-select').value||new Date().toISOString().split('T')[0];
+  let tk=toko.find(x=>x.id==tokoId);if(!tk) return alert('Pilih toko');
+  let piutangList=terjual.filter(j=>j.tokoId==tokoId);
+  let totalPiutang=piutangList.reduce((a,b)=>a+b.piutang,0);
+  let totalBayar=bayar.filter(b=>b.tokoId==tokoId).reduce((a,b)=>a+b.jumlah,0);
+  let sisa=totalPiutang-totalBayar;
+  if(sisa<=0) return alert('Toko ini tidak ada piutang!');
+  let html=`
+    <div style="font-family:monospace;border:2px solid #a16207;padding:20px;max-width:600px;margin:auto;background:white">
+      <center><b style="font-size:18px;color:#a16207">SURAT TAGIHAN TITIPAN</b><br>No: TG-${Date.now().toString().slice(-6)}<br>Tgl Tagih: ${tgl}<br><br></center>
+      <b>Kepada Yth:</b><br>${tk.nama}<br>${tk.alamat}<br>Pemilik: ${tk.pemilik} | WA: ${tk.wa}<br><br>
+      <b>Dengan hormat,</b><br>Berikut rincian penjualan produk titipan yang belum dibayar:<br><br>
+      <table border="1" style="width:100%;border-collapse:collapse;font-size:11px">
+        <tr><th>Tgl Jual</th><th>Produk</th><th>Qty</th><th>Harga Titip</th><th>Piutang</th></tr>
+        ${piutangList.map(j=>{let pr=produk.find(x=>x.id==j.produkId);return `<tr><td>${j.tgl}</td><td>${pr?.nama||'-'}</td><td>${j.qty}</td><td>Rp ${pr?.titip.toLocaleString()}</td><td>Rp ${j.piutang.toLocaleString()}</td></tr>`}).join('')}
+        <tr><td colspan="4"><b>Total Piutang</b></td><td><b>Rp ${totalPiutang.toLocaleString()}</b></td></tr>
+        <tr><td colspan="4">Sudah Dibayar</td><td>Rp ${totalBayar.toLocaleString()}</td></tr>
+        <tr style="background:yellow"><td colspan="4"><b>SISA PIUTANG (HARUS DIBAYAR)</b></td><td><b>Rp ${sisa.toLocaleString()}</b></td></tr>
+      </table>
+      <br><b>Mohon segera dibayar ke:</b><br>
+      Rek BRI 107901046166505 a.n Hatta Hasibuan<br><br>
+      <small>Jika sudah bayar, abaikan surat ini. Hubungi WA 082366214931 untuk konfirmasi.<br>Return barang tidak laku max 12Hari setelah titip.</small><br><br>
+      <div style="text-align:right">Hormat kami,<br><br><br>Penitip<br>182kopi</div>
+      <br><center><small>P-IRT 2153274010234-29</small></center>
+    </div>`;
+  document.getElementById('preview-tagihan').innerHTML=html;
+}
+
+function downloadTagihan(){
+  let preview=document.getElementById('preview-tagihan');if(!preview.innerHTML) return alert('Buat Tagihan dulu!');
+  let tk=toko.find(x=>x.id==parseInt(document.getElementById('tagih-toko-select').value));
+  let canvas=document.getElementById('canvas-nota');let ctx=canvas.getContext('2d');
+  canvas.width=800;canvas.height=1100;ctx.fillStyle='white';ctx.fillRect(0,0,800,1100);
+  ctx.fillStyle='black';ctx.font='bold 20px monospace';ctx.textAlign='center';ctx.fillText('SURAT TAGIHAN TITIPAN',400,40);
+  ctx.font='12px monospace';ctx.fillText('Toko: '+tk.nama+' | Sisa: Rp '+calcPiutang(tk.id).toLocaleString(),400,65);
+  let y=90;ctx.textAlign='left';
+  let list=terjual.filter(j=>j.tokoId==tk.id);
+  list.forEach(j=>{let pr=produk.find(x=>x.id==j.produkId);ctx.fillText(`${j.tgl} | ${pr.nama.substring(0,20)} | ${j.qty} x Rp ${pr.titip.toLocaleString()} = Rp ${j.piutang.toLocaleString()}`,20,y);y+=18;});
+  y+=20;ctx.font='bold 16px monospace';ctx.fillText('SISA PIUTANG: Rp '+calcPiutang(tk.id).toLocaleString(),20,y);
+  y+=30;ctx.font='12px monospace';ctx.fillText('Bayar ke: BRI 1079 01046166505 a.n Hatta Hasibuan',20,y);
+  let img=canvas.toDataURL('image/png');let a=document.createElement('a');a.href=img;a.download='Tagihan-'+tk.nama+'-'+Date.now()+'.png';a.click();
+  alert('Gambar Tagihan terdownload! Kirim WA ke toko');
+}
+
+function kirimWATagihan(){
+  let tokoId=parseInt(document.getElementById('tagih-toko-select').value);let tk=toko.find(x=>x.id==tokoId);if(!tk) return alert('Pilih toko');
+  let sisa=calcPiutang(tokoId);if(sisa<=0) return alert('Tidak ada piutang');
+  let pesan=`*SURAT TAGIHAN TITIPAN*%0A%0AKepada: ${tk.nama}%0AAlamat: ${tk.alamat}%0A%0ARincian penjualan titipan belum dibayar:%0A${terjual.filter(j=>j.tokoId==tokoId).map(j=>{let pr=produk.find(x=>x.id==j.produkId);return `${j.tgl} - ${pr?.nama} x${j.qty} = Rp ${j.piutang.toLocaleString()}`}).join('%0A')}%0A%0A*Total Piutang: Rp ${terjual.filter(j=>j.tokoId==tokoId).reduce((a,b)=>a+b.piutang,0).toLocaleString()}*%0A*Sudah Bayar: Rp ${bayar.filter(b=>b.tokoId==tokoId).reduce((a,b)=>a+b.jumlah,0).toLocaleString()}*%0A*SISA HARUS DIBAYAR: Rp ${sisa.toLocaleString()}*%0A%0AMohon transfer ke BRI 107901046166505 a.n Hatta Hasibuan%0ATerima kasih 🙏%0A%0AP-IRT 2153274010234-29`;
+  window.open('https://wa.me/6282366214931'+tk.wa.replace(/[^0-9]/g,'')+'?text='+pesan,'_blank');
+}
+
+render();
+document.getElementById('titip-tgl').valueAsDate=new Date();document.getElementById('jual-tgl').valueAsDate=new Date();document.getElementById('retur-tgl').valueAsDate=new Date();document.getElementById('nota-tgl').valueAsDate=new Date();document.getElementById('tagih-tgl-select').valueAsDate=new Date();document.getElementById('bayar-tgl').valueAsDate=new Date();
+</script>
+</body>
+</html>
