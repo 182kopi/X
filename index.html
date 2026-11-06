@@ -211,7 +211,7 @@ function kirimWATagihan(){
   let tokoId=parseInt(document.getElementById('tagih-toko-select').value);let tk=toko.find(x=>x.id==tokoId);if(!tk) return alert('Pilih toko');
   let sisa=calcPiutang(tokoId);if(sisa<=0) return alert('Tidak ada piutang');
   let pesan=`*SURAT TAGIHAN TITIPAN*%0A%0AKepada: ${tk.nama}%0AAlamat: ${tk.alamat}%0A%0ARincian penjualan titipan belum dibayar:%0A${terjual.filter(j=>j.tokoId==tokoId).map(j=>{let pr=produk.find(x=>x.id==j.produkId);return `${j.tgl} - ${pr?.nama} x${j.qty} = Rp ${j.piutang.toLocaleString()}`}).join('%0A')}%0A%0A*Total Piutang: Rp ${terjual.filter(j=>j.tokoId==tokoId).reduce((a,b)=>a+b.piutang,0).toLocaleString()}*%0A*Sudah Bayar: Rp ${bayar.filter(b=>b.tokoId==tokoId).reduce((a,b)=>a+b.jumlah,0).toLocaleString()}*%0A*SISA HARUS DIBAYAR: Rp ${sisa.toLocaleString()}*%0A%0AMohon transfer ke BRI 107901046166505 a.n Hatta Hasibuan%0ATerima kasih 🙏%0A%0AP-IRT 2153274010234-29`;
-  window.open('https://wa.me/6282366214931'+tk.wa.replace(/[^0-9]/g,'')+'?text='+pesan,'_blank');
+  window.open('https://wa.me/'+tk.wa.replace(/[^0-9]/g,'')+'?text='+pesan,'_blank');
 }
 
 render();
